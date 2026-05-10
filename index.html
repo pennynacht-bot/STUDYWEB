@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<head>
+  <title>Study App</title>
+  <link rel="stylesheet" href="style.css">
+</head><head>
+  <title>Study App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>Study App</h2>
+    <p>Pomodoro</p>
+    <p>Notes</p>
+    <p>Schedule</p>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- POMODORO -->
+    <div class="card">
+      <h2>Pomodoro</h2>
+      <p id="time">25:00</p>
+      <button onclick="startTimer()">Start</button>
+      <button onclick="pauseTimer()">Pause</button>
+      <button onclick="resetTimer()">Reset</button>
+    </div>
+
+    <!-- NOTES -->
+    <div class="card">
+      <h2>Notes</h2>
+      <input id="noteInput" placeholder="Nhập ghi chú..." />
+      <button onclick="addNote()">Add</button>
+      <ul id="noteList"></ul>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="card">
+      <h2>Schedule</h2>
+      <input id="subject" placeholder="Môn học..." />
+      <input type="time" id="timeInput">
+      <button onclick="addSchedule()">Add</button>
+      <ul id="scheduleList"></ul>
+    </div>
+
+  </div>
+
+</div>
+  <<script>
+  let time = 1500;
+  let timer = null;
+
+  function updateDisplay() {
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+    document.getElementById("time").innerText =
+      minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  }
+
+  function startTimer() {
+    if (timer) return; // tránh bấm nhiều lần
+
+    timer = setInterval(() => {
+      if (time > 0) {
+        time--;
+        updateDisplay();
+      }
+    }, 1000);
+  }
+
+  function pauseTimer() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timer = null;
+    time = 1500;
+    updateDisplay();
+  }
+  let notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+function renderNotes() {
+  let list = document.getElementById("noteList");
+  list.innerHTML = "";
+
+  notes.forEach((note, index) => {
+    let li = document.createElement("li");
+    li.innerText = note;
+
+    let delBtn = document.createElement("button");
+    delBtn.innerText = "X";
+    delBtn.onclick = () => {
+      notes.splice(index, 1);
+      saveNotes();
+    };
+
+    li.appendChild(delBtn);
+    list.appendChild(li);
+  });
+}
+
+function addNote() {
+  let input = document.getElementById("noteInput");
+
+  if (input.value.trim() === "") return;
+
+  notes.push(input.value);
+  input.value = "";
+
+  saveNotes();
+}
+
+function saveNotes() {
+  localStorage.setItem("notes", JSON.stringify(notes));
+  renderNotes();
+}
+
+renderNotes();
+let schedules = JSON.parse(localStorage.getItem("schedules")) || [];
+
+function renderSchedule() {
+  let list = document.getElementById("scheduleList");
+  list.innerHTML = "";
+
+  schedules.forEach((item, index) => {
+    let li = document.createElement("li");
+    li.innerText = item.subject + " - " + item.time;
+
+    let delBtn = document.createElement("button");
+    delBtn.innerText = "X";
+    delBtn.onclick = () => {
+      schedules.splice(index, 1);
+      saveSchedule();
+    };
+
+    li.appendChild(delBtn);
+    list.appendChild(li);
+  });
+}
+
+function addSchedule() {
+  let subject = document.getElementById("subject").value;
+  let time = document.getElementById("timeInput").value;
+
+  if (subject === "" || time === "") return;
+
+  schedules.push({ subject, time });
+
+  document.getElementById("subject").value = "";
+  document.getElementById("timeInput").value = "";
+
+  saveSchedule();
+}
+
+function saveSchedule() {
+  localStorage.setItem("schedules", JSON.stringify(schedules));
+  renderSchedule();
+}
+
+renderSchedule();
+</script>
+</body>
+</html>
